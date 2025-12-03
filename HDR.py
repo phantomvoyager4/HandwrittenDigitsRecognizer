@@ -61,7 +61,7 @@ class Backpropagation:
         dvalues = probabilities_normalized / probabilities_normalized.shape[0]
         return dvalues
 
-class Optimizer_SGD:
+class Optimizer:
     def __init__(self, input):
         self.learning_rate = input
     def adjust_parameters(self, layer):
