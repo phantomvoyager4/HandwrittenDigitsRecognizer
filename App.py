@@ -24,22 +24,41 @@ class App:
 
         self.C = Canvas(app_window, height=300, width=300, bg='white')
         self.C.pack()
+        self.C.config()
+        self.C.bind("<Button-1>", self.activate_event)       
+        self.C.bind("<B1-Motion>", self.draw_line)
 
         self.image = Image.new(mode='RGB', size=(300, 300), color="white")
         self.draw = ImageDraw.Draw(self.image)
         self.last_x = None
-        self.last.y = None
+        self.last_y = None
 
-        self.predict = Button(app_window, text='Predict')
+        self.predict = Button(app_window, text='Predict', command=self.predict_digit)
         self.predict.pack()
 
-        self.clear = Button(app_window, text='Clear')
+        self.clear = Button(app_window, text='Clear', command=self.clear_canvas)
         self.clear.pack()
 
         self.textlabel = Label(app_window, text='Draw your digit')
+        self.textlabel.pack()
 
         #run
         app_window.mainloop()
 
+    def activate_event(self, event):
+        self.last_x = event.x
+        self.last_y = event.y
         
+    def draw_line(self, event):
+        x = event.x
+        y = event.y
+        self.C.create_line(self.last_x, self.last_y, x, y,fill='black', width=18, capstyle=ROUND)
+        self.draw.line(xy=[self.last_x, self.last_y, x, y], fill="black", width=18)
+        self.last_x = x
+        self.last_y = y
+
+    def clear_canvas(self):
+        self.C.delete("all")
         
+
+app1 = App()
