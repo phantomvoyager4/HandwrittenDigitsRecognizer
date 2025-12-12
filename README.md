@@ -1,6 +1,6 @@
 # Handwritten Digit Recognizer (神经网络)
 
-**📄 License: Free to Use** - This project is freely available for educational and personal use.
+**License: Free to Use** - This project is freely available for educational and personal use.
 
 A neural network implementation built from scratch using NumPy to recognize handwritten digits from the MNIST dataset. This project demonstrates core deep learning concepts including forward propagation, backpropagation, activation functions, and optimization techniques.
 
