@@ -1,6 +1,6 @@
 from HDR import Layer, Activation, Softmax
 from tkinter import *
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageOps
 import numpy as np
 
 class App:
@@ -62,18 +62,32 @@ class App:
 
     def clear_canvas(self):
         self.C.delete('all')
-        self.image = Image.new(mode='RGB', size=(300, 300), color="white")
+        self.image = Image.new(mode='RGB', size=(300, 300), color='white')
         self.draw = ImageDraw.Draw(self.image)
 
 
     def image_processing(self, raw_image):
-        image_resized = raw_image.resize((28,28), resample = Image.LANCZOS)
-        image_grayscaled = image_resized.convert('L')
-        image_array = np.array(image_grayscaled)
-        reversed_array = 255 - image_array
-        normalize = reversed_array / 255.0
+        grayscaled = raw_image.convert('L')
+        inverted = ImageOps.invert(grayscaled)
+
+        centralize = inverted.getbbox()
+        if centralize == None:
+            return np.zeros(shape=(1, 784)) 
+        cropped = inverted.crop(centralize)
+        get_size = cropped.size
+        scaler = max(get_size)
+        newimage = Image.new(mode='L', size=[scaler,scaler], color=0)
+        width = int((scaler - get_size[0]) / 2)
+        height = int((scaler - get_size[1]) / 2)
+        newimage.paste(cropped, [width,height])
+        newimage = newimage.resize((20,20), resample= Image.LANCZOS)
+        final_image = Image.new(mode='L', size=(28,28), color=0)
+        final_image.paste(newimage, [4, 4])
+        image_array = np.array(final_image)
+        normalize = image_array / 255.0
         vectorized = normalize.reshape(1, 784)
         return vectorized
+       
 
     def network_pipeline(self, image_vector):
         l1 = self.layer1.fpropagation(input = image_vector)
