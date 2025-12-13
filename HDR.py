@@ -3,7 +3,8 @@ import idx2numpy
 
 
 def data_handling(pathimages, pathlabels):
-    images = idx2numpy.convert_from_file(pathimages).reshape((60000, 784))
+    images = idx2numpy.convert_from_file(pathimages)
+    images = images.reshape((-1, 784))
     images = images / 255.0
     labels = idx2numpy.convert_from_file(pathlabels)
     return images, labels

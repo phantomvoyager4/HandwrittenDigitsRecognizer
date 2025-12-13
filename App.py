@@ -6,7 +6,7 @@ import os
 import datetime
 
 class App:
-    def transfer_network(self, filepath = 'models_data_storage/model_1/model_1_95.28_0.5.npz'):
+    def transfer_network(self, filepath = 'models_data_storage\model_1\model_1_95.99_0.5.npz'):
         #network structure transfer
         self.model = np.load(filepath)
         self.layer1 = Layer(n_inputs=784, n_neurons=128)

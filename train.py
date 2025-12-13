@@ -4,6 +4,9 @@ import os #for model versioning
 
 pathimagess = 'dataset/train-images.idx3-ubyte'
 pathlabelss = 'dataset/train-labels.idx1-ubyte'
+test_images_path = 'dataset/t10k-images.idx3-ubyte'
+test_labels_path = 'dataset/t10k-labels.idx1-ubyte'
+testimages, testlabels = data_handling(test_images_path, test_labels_path)
 images, labels = data_handling(pathimagess, pathlabelss)
 
 hidden_layer1 = Layer(n_inputs=784, n_neurons=128)
@@ -16,7 +19,7 @@ optimization = Optimizer(0.5)
 network = [hidden_layer1, activation1, hidden_layer2, activation2, output_layer]
 trainable_layers = [hidden_layer1, hidden_layer2, output_layer]
 
-for epoch in range (401):
+for epoch in range (1001):
     current_input = images
     for layer in network:
         iteration = layer.forward(current_input)
@@ -27,9 +30,6 @@ for epoch in range (401):
     highestchangebyrow = np.argmax(current_input, axis=1)
     comparison = np.equal(highestchangebyrow, labels)
     accuracy = np.mean(comparison)
-
-    if epoch % 100 == 0:
-        print(f"Epoch: {epoch}, Loss: {loss:.3f}, Accuracy: {accuracy:.3f}")
         
     dvalues = loss_activation.backward(labels)
     for layer in reversed(network):
@@ -38,6 +38,15 @@ for epoch in range (401):
 
     for layer in trainable_layers:
         optimization.adjust_parameters(layer)
+
+    if epoch % 100 == 0:
+        training_current_input = testimages
+        for layer in network:
+            training_current_input = layer.forward(training_current_input)
+        predicted = np.argmax(training_current_input, axis=1)
+        comparison_test = np.equal(predicted, testlabels)
+        accuracy_test = np.mean(comparison_test)
+        print(f"Epoch: {epoch}, Loss: {loss:.3f}, Accuracy: {accuracy_test:.3f}")
     
 models_folder_path = "models_data_storage"
 model_version_number = 1
@@ -50,7 +59,7 @@ while True:
         break
 
 os.makedirs(model_path)
-modelaccuracy = round(accuracy * 100, 2)
+modelaccuracy = round(accuracy_test * 100, 2)
 model_lr = optimization.learning_rate
 
 #model pathing: model_[version number]_[model accuracy]_[model learning rate]
