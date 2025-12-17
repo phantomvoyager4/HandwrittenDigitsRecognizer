@@ -6,7 +6,7 @@ import os
 import datetime
 
 class App:
-    def transfer_network(self, filepath = 'models_data_storage\model_1\model_1_95.99_0.5.npz'):
+    def transfer_network(self, filepath = 'models_data_storage/model_1/model_1_95.99_0.5.npz'):
         #network structure transfer
         self.model = np.load(filepath)
         self.layer1 = Layer(n_inputs=784, n_neurons=128)
@@ -29,14 +29,14 @@ class App:
         self.app_window.configure(bg='#f0f0f0')
         self.C = Canvas(self.app_window, height=300, width=300, bg='white', relief='groove', bd=2)
         self.C.pack(pady=20) 
-        self.C.bind("<Button-1>", self.activate_event)       
-        self.C.bind("<B1-Motion>", self.draw_line)
-        self.textlabel = Label(self.app_window, text="Draw a digit...", font=("Helvetica", 20, "bold"), bg='#f0f0f0')
+        self.C.bind('<Button-1>', self.activate_event)       
+        self.C.bind('<B1-Motion>', self.draw_line)
+        self.textlabel = Label(self.app_window, text='Draw a digit...', font=('Helvetica', 20, 'bold'), bg='#f0f0f0')
         self.textlabel.pack(pady=10)
         control_frame = Frame(self.app_window, bg='#f0f0f0')
         control_frame.pack(side='bottom', pady=30)
-        Button(control_frame, text='Predict', command=self.predict_digit, font=("Helvetica", 11), width=10).grid(row=0, column=0, padx=10)
-        Button(control_frame, text='Clear', command=self.clear_canvas, font=("Helvetica", 11), width=10).grid(row=0, column=1, padx=10)
+        Button(control_frame, text='Predict', command=self.predict_digit, font=('Helvetica', 11), width=10).grid(row=0, column=0, padx=10)
+        Button(control_frame, text='Clear', command=self.clear_canvas, font=('Helvetica', 11), width=10).grid(row=0, column=1, padx=10)
         self.image = Image.new(mode='RGB', size=(300, 300), color="white")
         self.draw = ImageDraw.Draw(self.image)
         self.last_x = None
@@ -60,7 +60,7 @@ class App:
         self.C.delete('all')
         self.image = Image.new(mode='RGB', size=(300, 300), color='white')
         self.draw = ImageDraw.Draw(self.image)
-
+        self.textlabel.config(text='Draw a digit...')
 
     def image_processing(self, raw_image):
         grayscaled = raw_image.convert('L')
@@ -77,9 +77,9 @@ class App:
         height = int((scaler - get_size[1]) / 2)
         newimage.paste(cropped, [width,height])
         newimage = newimage.resize((20,20), resample= Image.LANCZOS)
-        final_image = Image.new(mode='L', size=(28,28), color=0)
-        final_image.paste(newimage, [4, 4])
-        return ((np.array(final_image)) / 255.0).reshape(1, 784)
+        self.final_image = Image.new(mode='L', size=(28,28), color=0)
+        self.final_image.paste(newimage, [4, 4])
+        return ((np.array(self.final_image)) / 255.0).reshape(1, 784)
 
     def network_pipeline(self, image_vector):
         current_signal = image_vector
@@ -94,7 +94,7 @@ class App:
         vector = self.image_processing(self.image)       
         result, probability = self.network_pipeline(vector)
         filename = f'user_input_storage/draw_pred_{result}_cert_{(probability*100):.2f}_{datetime.datetime.now().strftime('%m-%d_%H-%M-%S')}.png'
-        self.image.save(filename)
+        self.final_image.save(filename)
         self.textlabel.config(text=f'Prediction: {str(result)} ({(probability*100):.2f}%)')
 
 

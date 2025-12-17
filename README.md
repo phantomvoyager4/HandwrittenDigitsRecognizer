@@ -1,8 +1,8 @@
 # Handwritten Digit Recognizer (神经网络)
 
-**License: Free to Use** - This project is freely available for educational and personal use.
 
-A neural network implementation built from scratch using NumPy to recognize handwritten digits from the MNIST dataset. This project demonstrates core deep learning concepts including forward propagation, backpropagation, activation functions, and optimization techniques.
+A neural network implementation built from scratch using NumPy to recognize handwritten digits trained on the MNIST dataset. This project demonstrates core deep learning concepts including forward propagation, backpropagation, activation functions, and optimization techniques.
+
 
 ## Table of Contents
 
@@ -16,7 +16,6 @@ A neural network implementation built from scratch using NumPy to recognize hand
 - [Usage](#usage)
 - [Dataset](#dataset)
 - [References](#references)
-- [License](#license)
 
 ## Overview
 
@@ -204,9 +203,6 @@ Source: [MNIST Database](http://yann.lecun.com/exdb/mnist/)
 - [Softmax & Cross-Entropy](https://en.wikipedia.org/wiki/Softmax_function)
 - [Backpropagation Algorithm](https://en.wikipedia.org/wiki/Backpropagation)
 - [idx2numpy](https://github.com/ivanyu/idx2numpy)
-
-## License
-
-Free to use for educational and personal projects. This implementation demonstrates neural network principles using pure Python and NumPy.
+- [Neural Network and Deep Learning book by Michael Nielsen](http:neuralnetworksanddeeplearning.com/)
 
 
