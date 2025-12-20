@@ -1,13 +1,14 @@
 from HDR import Layer, Activation, Softmax
 from tkinter import *
+from tkinter import filedialog
 from PIL import Image, ImageDraw, ImageOps
 import numpy as np
 import os
 import datetime
 
+
 class App:
-    def transfer_network(self, filepath = 'models_data_storage/model_1/model_1_95.99_0.5.npz'):
-        #network structure transfer
+    def transfer_network(self, filepath):
         self.model = np.load(filepath)
         self.layer1 = Layer(n_inputs=784, n_neurons=128)
         self.layer2 = Layer(n_inputs=128, n_neurons=64)
@@ -15,28 +16,83 @@ class App:
         self.activation = Activation()
         self.softmax = Softmax()
         trainable_layers = [self.layer1, self.layer2, self.output_layer]
+
         for index, layer in enumerate(trainable_layers):
             file_id = index + 1
             layer.weights = self.model[f'w{file_id}']
             layer.biases = self.model[f'b{file_id}']
-        self.network = [self.layer1, self.activation, self.layer2, self.activation, self.output_layer, self.softmax]
+
+        self.network = [
+            self.layer1, self.activation, self.layer2,
+            self.activation, self.output_layer, self.softmax
+        ]
+
+    def model_loading(self):
+        modelstoragepath = 'models_data_storage/'
+        smp = filedialog.askopenfilename(
+            initialdir=modelstoragepath,
+            title='Select network model',
+            filetypes=[("NumPy Zip", "*.npz")]
+        )
+        if smp:
+            self.transfer_network(filepath=smp)
+            self.is_model_loaded = True
+            self.textlabel.config(text='Draw a digit')
 
     def __init__(self):
-        self.transfer_network()
         self.app_window = Tk()
+        self.is_model_loaded = False
         self.app_window.geometry('400x550')
         self.app_window.title('Digit Recognizer AI')
         self.app_window.configure(bg='#f0f0f0')
-        self.C = Canvas(self.app_window, height=300, width=300, bg='white', relief='groove', bd=2)
-        self.C.pack(pady=20) 
-        self.C.bind('<Button-1>', self.activate_event)       
+
+        self.C = Canvas(
+            self.app_window,
+            height=300,
+            width=300,
+            bg='white',
+            relief='groove',
+            bd=2
+        )
+        self.C.pack(pady=20)
+        self.C.bind('<Button-1>', self.activate_event)
         self.C.bind('<B1-Motion>', self.draw_line)
-        self.textlabel = Label(self.app_window, text='Draw a digit...', font=('Helvetica', 20, 'bold'), bg='#f0f0f0')
+
+        self.textlabel = Label(
+            self.app_window,
+            text='Select Network model',
+            font=('Helvetica', 20, 'bold'),
+            bg='#f0f0f0'
+        )
         self.textlabel.pack(pady=10)
+
         control_frame = Frame(self.app_window, bg='#f0f0f0')
         control_frame.pack(side='bottom', pady=30)
-        Button(control_frame, text='Predict', command=self.predict_digit, font=('Helvetica', 11), width=10).grid(row=0, column=0, padx=10)
-        Button(control_frame, text='Clear', command=self.clear_canvas, font=('Helvetica', 11), width=10).grid(row=0, column=1, padx=10)
+
+        Button(
+            control_frame,
+            text='Select model',
+            command=self.model_loading,
+            font=('Helvetica', 11),
+            width=10
+        ).grid(row=0, column=0, columnspan=2, padx=10, pady=10)
+
+        Button(
+            control_frame,
+            text='Predict',
+            command=self.predict_digit,
+            font=('Helvetica', 11),
+            width=10
+        ).grid(row=2, column=0, padx=10)
+
+        Button(
+            control_frame,
+            text='Clear',
+            command=self.clear_canvas,
+            font=('Helvetica', 11),
+            width=10
+        ).grid(row=2, column=1, padx=10)
+
         self.image = Image.new(mode='RGB', size=(300, 300), color="white")
         self.draw = ImageDraw.Draw(self.image)
         self.last_x = None
@@ -47,12 +103,21 @@ class App:
     def activate_event(self, event):
         self.last_x = event.x
         self.last_y = event.y
-        
+
     def draw_line(self, event):
         x = event.x
         y = event.y
-        self.C.create_line(self.last_x, self.last_y, x, y,fill='black', width=18, capstyle=ROUND)
-        self.draw.line(xy=[self.last_x, self.last_y, x, y], fill="black", width=18)
+        self.C.create_line(
+            self.last_x, self.last_y, x, y,
+            fill='black',
+            width=18,
+            capstyle=ROUND
+        )
+        self.draw.line(
+            xy=[self.last_x, self.last_y, x, y],
+            fill="black",
+            width=18
+        )
         self.last_x = x
         self.last_y = y
 
@@ -67,18 +132,22 @@ class App:
         inverted = ImageOps.invert(grayscaled)
 
         centralize = inverted.getbbox()
-        if centralize == None:
-            return np.zeros(shape=(1, 784)) 
+        if centralize is None:
+            return np.zeros(shape=(1, 784))
+
         cropped = inverted.crop(centralize)
         get_size = cropped.size
         scaler = max(get_size)
-        newimage = Image.new(mode='L', size=[scaler,scaler], color=0)
+        newimage = Image.new(mode='L', size=[scaler, scaler], color=0)
+
         width = int((scaler - get_size[0]) / 2)
         height = int((scaler - get_size[1]) / 2)
-        newimage.paste(cropped, [width,height])
-        newimage = newimage.resize((20,20), resample= Image.LANCZOS)
-        self.final_image = Image.new(mode='L', size=(28,28), color=0)
+        newimage.paste(cropped, [width, height])
+        newimage = newimage.resize((20, 20), resample=Image.LANCZOS)
+
+        self.final_image = Image.new(mode='L', size=(28, 28), color=0)
         self.final_image.paste(newimage, [4, 4])
+
         return ((np.array(self.final_image)) / 255.0).reshape(1, 784)
 
     def network_pipeline(self, image_vector):
@@ -86,16 +155,28 @@ class App:
         for layer in self.network:
             iteration = layer.forward(current_signal)
             current_signal = iteration
+
         result_probability = np.max(current_signal)
         result = np.argmax(current_signal)
+
         return result, result_probability
-        
+
     def predict_digit(self):
-        vector = self.image_processing(self.image)       
+        if self.is_model_loaded is False:
+            self.textlabel.config(text='Select network model first!')
+            return
+
+        vector = self.image_processing(self.image)
         result, probability = self.network_pipeline(vector)
-        filename = f'user_input_storage/draw_pred_{result}_cert_{(probability*100):.2f}_{datetime.datetime.now().strftime('%m-%d_%H-%M-%S')}.png'
+        filename = (
+            f'user_input_storage/draw_pred_{result}_cert_'
+            f'{(probability * 100):.2f}_'
+            f'{datetime.datetime.now().strftime("%m-%d_%H-%M-%S")}.png'
+        )
         self.final_image.save(filename)
-        self.textlabel.config(text=f'Prediction: {str(result)} ({(probability*100):.2f}%)')
+        self.textlabel.config(
+            text=f'Prediction: {str(result)} ({(probability * 100):.2f}%)'
+        )
 
 
 app1 = App()
